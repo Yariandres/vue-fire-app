@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Caffes from './components/Caffes.vue';
+</script>
 
 <template>
-  <div>hello world form new fire app</div>
+  <Suspense>
+    <Caffes />
+  </Suspense>
 </template>
-
-<style scoped></style>
