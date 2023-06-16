@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { doc, updateDoc } from 'firebase/firestore';
-import { useDocument, useFirestore } from 'vuefire';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useFirestore } from 'vuefire';
 
 const db = useFirestore();
 
@@ -30,12 +30,12 @@ const editCafe = ref<any>({
 
 const isEdit = ref(false);
 
-const handleDelete = () => {
-  console.log('delete');
-};
+async function handleDeleteCafe(id: string) {
+  await deleteDoc(doc(db, 'cafes', id));
+}
 
 async function handleUpdateCafe(id: string) {
-  const docRef = doc(db, 'cafes', `${id}`);
+  const docRef = doc(db, 'cafes', id);
   await updateDoc(docRef, {
     ...editCafe.value,
   });
@@ -85,14 +85,9 @@ async function handleUpdateCafe(id: string) {
         Favourite: {{ collection.favourite! ? 'Yes' : 'No' }}
       </p>
 
-      <label for="favourite">
+      <label v-if="isEdit" for="favourite">
         Favourite:
-        <input
-          v-if="isEdit"
-          type="checkbox"
-          id="favourite"
-          v-model="collection.favourite"
-        />
+        <input type="checkbox" id="favourite" v-model="collection.favourite" />
       </label>
     </div>
 
@@ -104,7 +99,7 @@ async function handleUpdateCafe(id: string) {
       </label>
     </div>
 
-    <button @click="handleDelete">Delete</button>
+    <button @click="handleDeleteCafe(collection.id as string)">Delete</button>
     <button @click="isEdit = !isEdit">
       {{ isEdit === true ? 'Cancel' : 'Edit' }}
     </button>
