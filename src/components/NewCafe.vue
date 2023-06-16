@@ -44,6 +44,7 @@ const isDisabled = computed(() => {
 
 <template>
   <form @submit.prevent="addCafe">
+    <h1>Create cafe</h1>
     <div class="form">
       <input v-model="formData.name" type="text" placeholder="Name" required />
       <input
