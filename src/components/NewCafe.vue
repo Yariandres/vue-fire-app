@@ -1,41 +1,94 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { useFirestore } from 'vuefire';
 import { collection, addDoc } from 'firebase/firestore';
+
 const db = useFirestore();
 
-async function addCafe() {
-  const newDoc = await addDoc(collection(db, 'cafes'), {
-    description: 'Town big coffee shop for addicts',
-    favourite: false,
-    location: 'Japan',
-    name: 'Downtown Cafe',
-    price: 2,
-    rating: 1,
-  });
+const formData = ref({
+  description: '',
+  favourite: '',
+  location: '',
+  name: '',
+  price: '',
+  rating: '',
+});
 
-  console.log(newDoc);
+async function addCafe() {
+  await addDoc(collection(db, 'cafes'), {
+    ...formData.value,
+  });
+  formData.value.description = '';
+  formData.value.favourite = '';
+  formData.value.location = '';
+  formData.value.name = '';
+  formData.value.price = '';
+  formData.value.rating = '';
 }
 
-const handleSubmit = () => {
-  console.log('submit');
-};
+const isDisabled = computed(() => {
+  if (
+    formData.value.description === '' ||
+    formData.value.location === '' ||
+    formData.value.favourite === '' ||
+    formData.value.name === '' ||
+    formData.value.price === '' ||
+    formData.value.rating === ''
+  ) {
+    return true;
+  } else {
+    false;
+  }
+});
 </script>
 
 <template>
-  <form @submit="handleSubmit">
+  <form @submit.prevent="addCafe">
     <div class="form">
-      <input type="text" placeholder="Name" />
-      <input type="text" placeholder="Description" />
-      <input type="text" placeholder="Location" />
-      <input type="number" placeholder="Price" />
-      <input type="number" placeholder="Rating" />
+      <input v-model="formData.name" type="text" placeholder="Name" required />
+      <input
+        v-model="formData.description"
+        type="text"
+        placeholder="Description"
+      />
+
+      <input
+        v-model="formData.location"
+        type="text"
+        placeholder="Location"
+        required
+      />
+
+      <input
+        v-model="formData.price"
+        type="number"
+        min="1"
+        max="10"
+        placeholder="Price"
+      />
+
+      <input
+        v-model="formData.rating"
+        type="number"
+        min="1"
+        max="5"
+        placeholder="Rating"
+        required
+      />
+
       <label for="favourite">
         favourite
-        <input type="checkbox" id="favourite" />
+        <input
+          v-model="formData.favourite"
+          type="checkbox"
+          id="favourite"
+          required
+        />
       </label>
-      <button type="submit" @click="addCafe">Add New cafe</button>
+      <button type="submit" :disabled="isDisabled">Add</button>
     </div>
   </form>
+  <pre>{{ formData }}</pre>
 </template>
 
 <style>
